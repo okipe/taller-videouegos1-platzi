@@ -20,7 +20,18 @@ function startGame() {
     canvas.setAttribute('width', canvasSize);
     canvas.setAttribute('height', canvasSize); 
     
-    const elementsSize = // acá me quedé
+    const elementsSize = (canvasSize / 10) - 1;
+    console.log({canvasSize, elementsSize});
+
+    game.font = elementsSize + 'px Verdana';
+    game.textAlign = "";
+
+    for (let i = 0; i < 10; i++) {
+        game.fillText(emojis['X'], elementsSize * i, elementsSize);
+        
+    }
+
+    
     
     // game.fillRect(0,0,100,100); // Dibuja trazo (x,y, hasta donde llega x, hasta donde llega y)
     // game.clearRect(0,0,100,100); // Borra (mismos que el anterior)
