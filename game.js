@@ -9,8 +9,8 @@ window.addEventListener('load', startGame) //apenas abra, se ejecuará
 
 // Para usarla en el futuro
 function startGame() {
+    // Determinamos el tamaño de la ventana.
     let canvasSize; 
-
     if(window.innerHeight > window.innerWidth) {
         canvasSize = window.innerWidth * 0.8;  // Pantalla con 75% responsive al abrir o recargar
     } else {
@@ -20,12 +20,14 @@ function startGame() {
     canvas.setAttribute('width', canvasSize);
     canvas.setAttribute('height', canvasSize); 
     
+    // Elementos del tablero
     const elementsSize = (canvasSize / 10) - 1;
     console.log({canvasSize, elementsSize});
 
     game.font = elementsSize + 'px Verdana';
-    game.textAlign = "";
+    game.textAlign = '';
 
+    // Rellenando con bombitas
     for (let i = 0; i < 10; i++) {
         game.fillText(emojis['X'], elementsSize * i, elementsSize);
         
