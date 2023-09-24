@@ -11,11 +11,20 @@ const btnDown = document.querySelector('#down');
 
 let canvasSize; 
 let elementsSize;
+let level = 0;
+let lives = 3;
 
 const playerPosition = {
     x: undefined,
     y: undefined,
 };
+
+const giftPosition = {
+    x: undefined,
+    y: undefined,
+}
+
+let enemyPositions = [];
 
 window.addEventListener('load', setCanvasSize); //apenas abra, se ejecuará el size
 window.addEventListener('resize', setCanvasSize); // se hará resize de manera dinámica 
@@ -23,16 +32,16 @@ window.addEventListener('resize', setCanvasSize); // se hará resize de manera d
 function setCanvasSize() {
     // Determinamos el tamaño de la ventana.
     if(window.innerHeight > window.innerWidth) {
-        canvasSize = window.innerWidth * 0.9;  // Pantalla con 75% responsive al abrir o recargar. Por el momento lo puse en 0.9.
+        canvasSize = window.innerWidth * 0.8;  // Pantalla con 75% responsive al abrir o recargar. Por el momento lo puse en 0.9.
     } else {
-        canvasSize = window.innerHeight * 0.9;
+        canvasSize = window.innerHeight * 0.8;
     }
 
     canvas.setAttribute('width', canvasSize);
     canvas.setAttribute('height', canvasSize); 
     
     // Elementos del tablero
-    elementsSize = (canvasSize / 10) - 1;
+    elementsSize = (canvasSize / 10);
 
     startGame()
 }
@@ -44,15 +53,22 @@ function startGame () {
     game.textAlign = 'end';
 
     // Extraigo los caracteres de maps.js
-    const map = maps[0];
+    const map = maps[level];
+
+    if(!map) {
+        gameWin();
+        return;
+    }
+
+
     // Creo las filas. Trim para limpiar los spacios, split para crear arreglos desde strings
     const mapRows = map.trim().split('\n');
     // Creo las columnas
     const mapRowCols = mapRows.map(row => row.trim().split(''));
     // console.log({map, mapRows, mapRowCols});
 
+    enemyPositions = [];
     game.clearRect(0, 0, canvasSize, canvasSize); // Borrado inicial
-
 
     mapRowCols.forEach((row, rowI) => {
         row.forEach((col, colI) => {
@@ -66,6 +82,14 @@ function startGame () {
                     playerPosition.y = posY;
                     console.log({playerPosition});
                 }
+            } else if (col == 'I') {
+                giftPosition.x = posX;
+                giftPosition.y = posY;
+            } else if (col == 'X') {
+                enemyPositions.push({
+                    x: posX,
+                    y: posY,
+                });
             }
 
             game.fillText(emoji, posX, posY);
@@ -76,7 +100,51 @@ function startGame () {
 }
 
 function movePlayer() {
+    const giftCollisionX = playerPosition.x.toFixed(3) == giftPosition.x.toFixed(3); // To fixed es para evitar problemas con tamaños y colisiones
+    const giftCollisionY = playerPosition.y.toFixed(3) == giftPosition.y.toFixed(3);
+    const giftCollision = giftCollisionX && giftCollisionY;
+
+    if (giftCollision) {
+        levelWin();
+    }
+
+    // Comprobar si algún enemigo coincide con mi posición
+    const enemyCollision = enemyPositions.find( enemy => {
+        const enemyCollisionX = enemy.x.toFixed(3) == playerPosition.x.toFixed(3);
+        const enemyCollisionY = enemy.y.toFixed(3) == playerPosition.y.toFixed(3);
+        return enemyCollisionX && enemyCollisionY;
+    });
+
+    if (enemyCollision) {
+        levelFail();
+    }
+    
     game.fillText(emojis['PLAYER'], playerPosition.x, playerPosition.y);
+}
+
+// Para pasar de nivel
+function levelWin() {
+    console.log('Subiste de nivel');
+    level++;
+    startGame();
+}
+
+function levelFail() {
+    console.log('Chocaste contra un enemigo');
+    lives--;
+
+    console.log(lives);
+    if (lives <= 0) {
+        level = 0;
+        lives = 3;
+    }
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
+    startGame();
+}
+
+function gameWin() {
+    console.log('Terminaste el juego');
 }
 
 window.addEventListener('keydown', moveByKeys); // keydown cuando oprimimos la tecla, keyup es cuando levantamos la letra
