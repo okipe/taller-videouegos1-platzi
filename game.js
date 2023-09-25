@@ -8,11 +8,19 @@ const btnUp = document.querySelector('#up');
 const btnLeft = document.querySelector('#left');
 const btnRight = document.querySelector('#right');
 const btnDown = document.querySelector('#down');
+const spanLives = document.querySelector('#lives');
+const spanTime = document.querySelector('#time');
+const spanRecord = document.querySelector('#record');
+const pResult = document.querySelector('#result');
 
 let canvasSize; 
 let elementsSize;
 let level = 0;
 let lives = 3;
+
+let timeStart;
+let timePlayer;
+let timeInterval;
 
 const playerPosition = {
     x: undefined,
@@ -60,12 +68,21 @@ function startGame () {
         return;
     }
 
+    // Contador de tiempo
+    if (!timeStart) {
+        timeStart = Date.now();
+        timeInterval = setInterval(showTime, 100);
+        showRecord();
+    }
+
 
     // Creo las filas. Trim para limpiar los spacios, split para crear arreglos desde strings
     const mapRows = map.trim().split('\n');
     // Creo las columnas
     const mapRowCols = mapRows.map(row => row.trim().split(''));
     // console.log({map, mapRows, mapRowCols});
+
+    showLives();
 
     enemyPositions = [];
     game.clearRect(0, 0, canvasSize, canvasSize); // Borrado inicial
@@ -137,6 +154,8 @@ function levelFail() {
     if (lives <= 0) {
         level = 0;
         lives = 3;
+        clearInterval(timeInterval);
+        timeStart = undefined;
     }
     playerPosition.x = undefined;
     playerPosition.y = undefined;
@@ -145,6 +164,38 @@ function levelFail() {
 
 function gameWin() {
     console.log('Terminaste el juego');
+    clearInterval(timeInterval);
+    const playerTime = Date.now() - timeStart;
+
+    const recordTime = localStorage.getItem('record_time');
+    if(recordTime) {
+        if (recordTime >= playerTime) {
+            localStorage.setItem('record_time', playerTime);
+            pResult.innerHTML = '¡Superaste el record!';
+        } else {
+            pResult.innerHTML = 'Lo siento, no superaste el record :c';
+        }
+    } else {
+        localStorage.setItem('record_time', playerTime);
+        pResult.innerHTML = '¿Primera vez? Muy bien pero trátalo de superar :D.'
+    }
+    console.log({recordTime});
+}
+
+// Marcar corazones de vidas
+function showLives() {
+    spanLives.innerHTML = emojis["HEART"].repeat(lives) // Solución más limpia
+/*     const heartArray = Array(lives).fill(emojis['HEART']) // [1, 2, 3]
+    spanLives.innerHTML = "";
+    heartArray.forEach(heart => spanLives.append(heart)); */
+}
+
+function showTime() {
+    spanTime.innerHTML = (Date.now() - timeStart) / 1000;
+}
+
+function showRecord() {
+    spanRecord.innerHTML = (localStorage.getItem('record_time')) / 1000;
 }
 
 window.addEventListener('keydown', moveByKeys); // keydown cuando oprimimos la tecla, keyup es cuando levantamos la letra
