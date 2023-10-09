@@ -32,18 +32,37 @@ const giftPosition = {
     y: undefined,
 }
 
-let enemyPositions = [];
+let enemyPositions = [];https://platzi.com/clases/3573-javascript-practico-videojuegos/52335-victoria-subiendo-de-nivel/
 
 window.addEventListener('load', setCanvasSize); //apenas abra, se ejecuará el size
 window.addEventListener('resize', setCanvasSize); // se hará resize de manera dinámica 
 
 function setCanvasSize() {
     // Determinamos el tamaño de la ventana.
-    if(window.innerHeight > window.innerWidth) {
-        canvasSize = window.innerWidth * 0.8;  // Pantalla con 75% responsive al abrir o recargar. Por el momento lo puse en 0.9.
+    // if(window.innerHeight > window.innerWidth) {
+    //     canvasSize = window.innerWidth * 0.8;  // Pantalla con 75% responsive al abrir o recargar. Por el momento lo puse en 0.9.
+    // } else {
+    //     canvasSize = window.innerHeight * 0.8;
+    // }
+
+    windowHeight = window.innerHeight * 0.8;
+    windowWidth = window.innerWidth * 0.8;
+
+    if (window.innerHeight > window.innerWidth) {
+        if ((windowWidth % 10) !== 0) {
+             canvasSize = Math.ceil(windowWidth / 10) * 10;
+        } else {
+             canvasSize = windowWidth;
+        }
     } else {
-        canvasSize = window.innerHeight * 0.8;
+        if ((windowHeight % 10) !== 0) {
+             canvasSize = Math.ceil(windowHeight / 10) * 10;
+        } else {
+             canvasSize = windowHeight;
+        }
     }
+
+    // canvasSize = Number(canvasSize.toFixed(0));
 
     canvas.setAttribute('width', canvasSize);
     canvas.setAttribute('height', canvasSize); 
@@ -51,6 +70,8 @@ function setCanvasSize() {
     // Elementos del tablero
     elementsSize = (canvasSize / 10);
 
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
     startGame()
 }
 
